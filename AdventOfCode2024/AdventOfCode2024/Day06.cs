@@ -125,6 +125,34 @@ public class Day06 : Day
             next = Console.ReadLine();
         }
 
+        int res = 0;
+        
+        for (int i = 0; i < input.Count; i++)
+        {
+            for (int j = 0; j < input[0].Length; j++)
+            {
+                List<char[]> clone = new List<char[]>();
+                for (int k = 0; k < input.Count; k++)
+                {
+                    clone.Add((char[])input[k].Clone());
+                }
+
+                clone[i][j] = '#';
+                
+                if (Walk(clone))
+                {
+                    res++;
+                    Console.WriteLine(res);
+                }
+            }
+        }
+        
+        //~20 min.
+        return "Answer for part 2: " + res;
+    }
+    
+    private bool Walk(List<char[]> input)
+    {
         int X = 0, Y = 0, maxX = input[0].Length, maxY = input.Count;
         bool done = false;
 
@@ -147,79 +175,76 @@ public class Day06 : Day
                 break;
             }
         }
+        if (!done)
+        {
+            return false;
+        }
 
-        int[,] Directions = {{-1,0}, {0,1}, {1,0}, {0,-1}};
+        int prevX = X, prevY = Y;
         List<string> visited = new List<string>();
-        int current = 0, res = 0;
-        int nextX = X, nextY = Y;
         
         while (true)
         {
-            nextX += Directions[current, 1];
-            nextY += Directions[current, 0];
-                
-            if (nextX < 0 || nextY < 0 || nextX >= maxX || nextY >= maxY)
+            char current = input[Y][X];
+            input[Y][X] = 'X';
+            switch (current)
             {
-                break;
-            }
-            
-            Console.WriteLine(nextX + " , " + nextY);
-            if (input[nextY][nextX] == '#')
-            {
-                nextX -= Directions[current, 1];
-                nextY -= Directions[current, 0];
-                current = (current + 1) % 4;
-                continue;
-            }
-
-            int hypX = nextX, hypY = nextY, hypCurrent = current;
-            input[nextY][nextX] = '#';
-            
-            List<char[]> clone = new List<char[]>();
-
-            for (int i = 0; i < input.Count(); i++)
-            {
-                clone.Add((char[])input[i].Clone());
-            }
-            
-            while (true)
-            {
-                if (input[hypY][hypX] == '#')
-                {
-                    hypX -= Directions[hypCurrent, 1];
-                    hypY -= Directions[hypCurrent, 0];
-                    hypCurrent = (hypCurrent + 1) % 4;
-                }
-
-                string here = "|" + hypX.ToString("D3") + hypY.ToString("D3") + hypCurrent + "|";
-                
-                if (visited.Contains(here))
-                {
-                    res++;
-                    Console.WriteLine(res);
+                case '^':
+                    prevY = Y;
+                    Y -= 1;
                     break;
-                }
-                
-                visited.Add(here);
-
-                clone[hypY][hypX] = 'X';
-                
-                hypX += Directions[hypCurrent, 1];
-                hypY += Directions[hypCurrent, 0];
-                
-                if (hypX < 0 || hypY < 0 || hypX >= maxX || hypY >= maxY)
-                {
+                case '<':
+                    prevX = X;
+                    X -= 1;
                     break;
+                case '>':
+                    prevX = X;
+                    X += 1;
+                    break;
+                case 'v':
+                    prevY = Y;
+                    Y += 1;
+                    break;
+            }
+
+            if (X < 0 || Y < 0 || Y >= maxY || X >= maxX)
+            {
+                return false;
+            }
+            
+            if (input[Y][X] == '#')
+            {
+                switch (current)
+                {
+                    case '^':
+                        Y += 1;
+                        //X += 1;
+                        current = '>';
+                        break;
+                    case '<':
+                        X += 1;
+                        //Y -= 1;
+                        current = '^';
+                        break;
+                    case '>':
+                        X -= 1;
+                        //Y += 1;
+                        current = 'v';
+                        break;
+                    case 'v':
+                        Y -= 1;
+                        //X -= 1;
+                        current = '<';
+                        break;
                 }
             }
-            input[nextY][nextX] = 'X';
+            string here = X.ToString("D3") + Y.ToString("D3") + current;
+            if (visited.Contains(here))
+            {
+                return true;
+            }
+            visited.Add(here);
+            input[Y][X] = current;
         }
-
-        for (int i = 0; i < input.Count; i++)
-        {
-            Console.WriteLine(input[i]);
-        }
-
-        return res.ToString();
     }
 }
