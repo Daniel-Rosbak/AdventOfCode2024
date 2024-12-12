@@ -4,7 +4,7 @@ public class DaySelector
 {
     public static void Main()
     {
-        Day day = new Day11();
+        Day day = new Day12();
         Console.WriteLine(day.Run());
     }
 }
