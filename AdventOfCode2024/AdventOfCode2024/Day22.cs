@@ -61,13 +61,18 @@ public class Day22 : Day
             changesPerSecret.Add(GetChanges(long.Parse(input[i])));
         }
 
+        List<string> tested = new List<string>();
         int res = 0;
         for (int i = 0; i < changesPerSecret.Count; i++)
         {
             foreach (KeyValuePair<string, int> pair in changesPerSecret[i])
             {
-                int potentialProfit = 0;
                 string pattern = pair.Key;
+                int potentialProfit = 0;
+                if (tested.Contains(pattern))
+                {
+                    continue;
+                }
                 for (int j = 0; j < changesPerSecret.Count; j++)
                 {
                     if (changesPerSecret[j].TryGetValue(pattern, out int price))
@@ -76,19 +81,13 @@ public class Day22 : Day
                     }
                 }
 
-                if (pattern == "-2 1 -1 3")
-                {
-                    if (changesPerSecret[i].TryGetValue(pattern, out int p))
-                    {
-                        Console.WriteLine(i + "" + p);
-                    }
-                }
-
                 if (potentialProfit >= res)
                 {
                     res = potentialProfit;
                 }
+                tested.Add(pattern);
             }
+            Console.WriteLine((1 + i) + "/" + changesPerSecret.Count);
         }
         
         return "Answer for part 2: " + res;
@@ -121,7 +120,7 @@ public class Day22 : Day
             string here = changes[i - 3] + " " + changes[i - 2] + " " + changes[i - 1] + " " + changes[i];
             if (marks.ContainsKey(here))
             {
-                break;
+                continue;
             }
             marks[here] = price;
         }
